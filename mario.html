@@ -945,16 +945,44 @@
             enemies.forEach(enemy => {
                 if (enemy.dead) return;
                 
-                enemy.x += enemy.vx;
+                // 重力
+                enemy.vy += GRAVITY;
                 enemy.y += enemy.vy;
                 
-                // 简单AI：检测边缘
-                const frontX = enemy.vx > 0 ? enemy.x + enemy.width : enemy.x;
+                // 地面碰撞检测
+                const leftCol = Math.floor(enemy.x / TILE_SIZE);
+                const rightCol = Math.floor((enemy.x + enemy.width) / TILE_SIZE);
+                const bottomRow = Math.floor((enemy.y + enemy.height) / TILE_SIZE);
+                
+                for (let col = leftCol; col <= rightCol; col++) {
+                    if (bottomRow < 20 && levelData[bottomRow][col] !== '.' && levelData[bottomRow][col] !== 'C') {
+                        enemy.y = bottomRow * TILE_SIZE - enemy.height;
+                        enemy.vy = 0;
+                        break;
+                    }
+                }
+                
+                // 移动敌人
+                enemy.x += enemy.vx;
+                
+                // 检测前方是否有地面（防止掉落）
+                const frontX = enemy.vx > 0 ? enemy.x + enemy.width + 2 : enemy.x - 2;
                 const frontCol = Math.floor(frontX / TILE_SIZE);
                 const groundRow = Math.floor((enemy.y + enemy.height + 2) / TILE_SIZE);
                 
                 if (groundRow < 20 && levelData[groundRow][frontCol] === '.') {
-                    enemy.vx *= -1; // 转向
+                    enemy.vx *= -1; // 到达边缘，转向
+                }
+                
+                // 检测前方障碍物（管道、砖块等）
+                const faceCol = Math.floor(enemy.vx > 0 ? enemy.x + enemy.width : enemy.x - 1);
+                const faceRow = Math.floor((enemy.y + enemy.height / 2) / TILE_SIZE);
+                
+                if (faceRow >= 0 && faceRow < 20 && faceCol >= 0 && faceCol < LEVEL_WIDTH) {
+                    const tile = levelData[faceRow][faceCol];
+                    if (tile === 'P' || tile === 'B' || tile === '?' || tile === 'M' || tile === '#' || tile === 'G') {
+                        enemy.vx *= -1; // 遇到障碍物，转向
+                    }
                 }
                 
                 // 边界检查
