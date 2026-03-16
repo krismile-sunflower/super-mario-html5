@@ -227,8 +227,8 @@
         const TILE_SIZE = 32;
         const GRAVITY = 0.6;
         const JUMP_FORCE = -13;
-        const MOVE_SPEED = 5;
-        const MAX_SPEED = 6;
+        const MOVE_SPEED = 3;
+        const MAX_SPEED = 4;
         const FRICTION = 0.85;
         
         // 游戏状态
@@ -818,11 +818,11 @@
         function updateMario() {
             // 处理输入
             if (keys['ArrowLeft'] || keys['a']) {
-                mario.vx -= 0.5;
+                mario.vx -= 0.3;
                 mario.facingRight = false;
             }
             if (keys['ArrowRight'] || keys['d']) {
-                mario.vx += 0.5;
+                mario.vx += 0.3;
                 mario.facingRight = true;
             }
             
